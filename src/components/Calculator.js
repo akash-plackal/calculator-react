@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import "./calculator.css";
+import NumberFormat from "react-number-format";
 
 const Calculator = () => {
   const [preState, setPreState] = useState("");
@@ -8,15 +9,90 @@ const Calculator = () => {
   const [op, setOp] = useState(null);
   const [total, setTotal] = useState(false);
 
-  const inputNum = (e) => {};
-  const operatorType = () => {};
-  const reset = () => {};
-  const equals = () => {};
+  const inputNum = (e) => {
+    if (curState.includes(".") && e.target.innerText === ".") return;
+
+    if (total) {
+      setPreState("");
+    }
+
+    curState
+      ? setCurState((pre) => pre + e.target.innerText)
+      : setCurState(e.target.innerText);
+
+    setTotal(false);
+  };
+
+  useEffect(() => {
+    setInput(curState);
+  }, [curState]);
+
+  useEffect(() => {
+    setInput("0");
+  }, []);
+
+  const operatorType = (e) => {
+    setTotal(false);
+    setOp(e.target.innerText);
+    if (curState === "") return;
+    if (preState !== "") {
+      equals();
+    } else {
+      setPreState(curState);
+      setCurState("");
+    }
+  };
+  const reset = () => {
+    setInput("0");
+    setCurState("");
+    setPreState("");
+  };
+
+  const equals = (e) => {
+    if (e?.target.innerText === "=") {
+      setTotal(true);
+    }
+    let cal;
+    switch (op) {
+      case "/":
+        cal = String(parseFloat(preState) / parseFloat(curState));
+        break;
+
+      case "+":
+        cal = String(parseFloat(preState) + parseFloat(curState));
+        break;
+      case "×":
+        cal = String(parseFloat(preState) * parseFloat(curState));
+        break;
+      case "-":
+        cal = String(parseFloat(preState) - parseFloat(curState));
+        break;
+      default:
+        return;
+    }
+    setInput("");
+    setPreState(cal);
+    setCurState("");
+  };
 
   return (
     <div className="container">
       <div className="calculator">
-        <div className="calculator__display">{input}</div>
+        <div className="calculator__display">
+          {input !== "" || input === "0" ? (
+            <NumberFormat
+              value={input}
+              displayType={"text"}
+              thousandSeparator={true}
+            />
+          ) : (
+            <NumberFormat
+              value={preState}
+              displayType={"text"}
+              thousandSeparator={true}
+            />
+          )}
+        </div>
         <div className="calculator__keys">
           <button onClick={operatorType} className="operator plus">
             +
